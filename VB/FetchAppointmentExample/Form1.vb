@@ -27,7 +27,7 @@ Namespace FetchAppointmentExample
             InitializeComponent()
         End Sub
 
-        Private Sub Form1_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
+        Private Sub Form1_Load(ByVal sender As Object, ByVal e As EventArgs) Handles Me.Load
             Me.resourcesTableAdapter.Fill(scheduleTestDataSet.Resources)
             Me.appointmentsTableAdapter.Fill(scheduleTestDataSet.Appointments)
             If (scheduleTestDataSet.Resources.Rows.Count = 0) OrElse (scheduleTestDataSet.Appointments.Rows.Count = 0) Then

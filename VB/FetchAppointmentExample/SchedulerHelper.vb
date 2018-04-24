@@ -30,9 +30,11 @@ Namespace FetchAppointmentExample
             storage.BeginUpdate()
             Dim rnd As New Random()
             Dim start As Date = Date.Today.AddDays(-DAY_COUNT \ 2)
-            For i As Integer = 0 To DAY_COUNT * aptsPerDay
+            Dim i As Integer = 0
+            Do While i <= DAY_COUNT * aptsPerDay
                 storage.Appointments.Add(CreateNewAppointment(storage, i, aptsPerDay, rnd, start))
-            Next i
+                i += 1
+            Loop
             storage.EndUpdate()
         End Sub
 
