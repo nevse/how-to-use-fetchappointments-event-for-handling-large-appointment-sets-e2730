@@ -18,8 +18,6 @@ Namespace FetchAppointmentExample
         Public Shared queryExecutionCounter As Integer
 
         #Region "#lastfetchedinterval"
-        Private lastQueriedTimeInterval As New TimeInterval(Date.Today, Date.Today.AddDays(1))
-        Private lastQueriedResources As New ResourceBaseCollection()
         Private Const PADDING_DAYS As Integer = 7
         #End Region ' #lastfetchedinterval
 
@@ -50,15 +48,12 @@ Namespace FetchAppointmentExample
 
         #Region "#fetchappointments"
         Private Sub schedulerStorage1_FetchAppointments(ByVal sender As Object, ByVal e As FetchAppointmentsEventArgs)
-            Dim resourcesVisible As ResourceBaseCollection = schedulerControl1.ActiveView.GetResources()
-            Dim differentResources = resourcesVisible.Except(lastQueriedResources)
+            Dim resourcesVisible As New ResourceBaseCollection() With {.Capacity = schedulerControl1.ActiveView.ResourcesPerPage}
+            For i As Integer = 0 To schedulerControl1.ActiveView.ResourcesPerPage - 1
+                resourcesVisible.Add(schedulerStorage1.Resources(schedulerControl1.ActiveView.FirstVisibleResourceIndex + i))
+            Next i
 
-            ' If a different resource is displayed or the visible time interval intersects the time interval used in a recent query, fetch the data.
-            If (differentResources.Count() <> 0) OrElse (e.Interval.Start < lastQueriedTimeInterval.Start) OrElse (e.Interval.End > lastQueriedTimeInterval.End) Then
-                QueryAppointmentDataSource(e, resourcesVisible)
-                lastQueriedResources = resourcesVisible
-                lastQueriedTimeInterval = e.Interval
-            End If
+            QueryAppointmentDataSource(e, resourcesVisible)
         End Sub
 
         Private Sub QueryAppointmentDataSource(ByVal e As FetchAppointmentsEventArgs, ByVal resources As ResourceBaseCollection)
