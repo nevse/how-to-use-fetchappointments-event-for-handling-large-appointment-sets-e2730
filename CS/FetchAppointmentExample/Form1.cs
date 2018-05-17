@@ -16,8 +16,6 @@ namespace FetchAppointmentExample {
         public static int queryExecutionCounter;
 
         #region #lastfetchedinterval
-        TimeInterval lastQueriedTimeInterval = new TimeInterval(DateTime.Today, DateTime.Today.AddDays(1));
-        ResourceBaseCollection lastQueriedResources = new ResourceBaseCollection();
         const int PADDING_DAYS = 7;
         #endregion #lastfetchedinterval
 
@@ -47,15 +45,12 @@ namespace FetchAppointmentExample {
 
         #region #fetchappointments
         void schedulerStorage1_FetchAppointments(object sender, FetchAppointmentsEventArgs e) {
-            ResourceBaseCollection resourcesVisible = schedulerControl1.ActiveView.GetResources();
-            var differentResources = resourcesVisible.Except(lastQueriedResources);
-
-            // If a different resource is displayed or the visible time interval intersects the time interval used in a recent query, fetch the data.
-            if ((differentResources.Count() != 0) || (e.Interval.Start < lastQueriedTimeInterval.Start) || (e.Interval.End > lastQueriedTimeInterval.End)) {
-                QueryAppointmentDataSource(e, resourcesVisible);
-                lastQueriedResources = resourcesVisible;
-                lastQueriedTimeInterval = e.Interval;
+            ResourceBaseCollection resourcesVisible = new ResourceBaseCollection() { Capacity = schedulerControl1.ActiveView.ResourcesPerPage };
+            for (int i = 0; i < schedulerControl1.ActiveView.ResourcesPerPage; i++) {
+                resourcesVisible.Add(schedulerStorage1.Resources[schedulerControl1.ActiveView.FirstVisibleResourceIndex + i]);
             }
+
+            QueryAppointmentDataSource(e, resourcesVisible);
         }
 
         private void QueryAppointmentDataSource(FetchAppointmentsEventArgs e, ResourceBaseCollection resources) {
