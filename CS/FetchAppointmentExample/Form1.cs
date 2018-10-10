@@ -40,14 +40,26 @@ namespace FetchAppointmentExample {
             schedulerControl1.GroupType = SchedulerGroupType.Resource;
             schedulerControl1.ActiveView.ResourcesPerPage = 1;
 
+            schedulerControl1.DayView.ResourcesPerPage = 1;
+            schedulerControl1.WorkWeekView.ResourcesPerPage = 1;
+            schedulerControl1.FullWeekView.ResourcesPerPage = 1;
+            schedulerControl1.MonthView.ResourcesPerPage = 1;
+            schedulerControl1.TimelineView.ResourcesPerPage = 1;
+
             UpdateStatisticsInformationDisplayedOnTheForm();
         }
 
         #region #fetchappointments
         void schedulerStorage1_FetchAppointments(object sender, FetchAppointmentsEventArgs e) {
             ResourceBaseCollection resourcesVisible = new ResourceBaseCollection() { Capacity = schedulerControl1.ActiveView.ResourcesPerPage };
-            for (int i = 0; i < schedulerControl1.ActiveView.ResourcesPerPage; i++) {
-                resourcesVisible.Add(schedulerStorage1.Resources[schedulerControl1.ActiveView.FirstVisibleResourceIndex + i]);
+            int resourceCount = schedulerControl1.ActiveView.ResourcesPerPage;
+            int firstVisibleResourceIndex = schedulerControl1.ActiveView.FirstVisibleResourceIndex;
+            if (resourceCount == 0) {
+                firstVisibleResourceIndex = 0;
+                resourceCount = schedulerControl1.DataStorage.Resources.Count;
+            }
+            for (int i = 0; i < resourceCount; i++) {
+                resourcesVisible.Add(this.schedulerStorage1.Resources[firstVisibleResourceIndex + i]);
             }
 
             QueryAppointmentDataSource(e, resourcesVisible);
@@ -117,14 +129,14 @@ namespace FetchAppointmentExample {
 
         private void cbFetchAppointments_CheckedChanged(object sender, EventArgs e) {
             if (cbFetchAppointments.Checked) {
-                schedulerStorage1.EnableSmartFetch = false;
+                schedulerStorage1.EnableSmartFetch = true;
                 schedulerStorage1.FetchAppointments += schedulerStorage1_FetchAppointments;
             }
             else {
                 schedulerStorage1.FetchAppointments -= schedulerStorage1_FetchAppointments;
                 this.resourcesTableAdapter.Fill(scheduleTestDataSet.Resources);
                 this.appointmentsTableAdapter.Fill(scheduleTestDataSet.Appointments);
-                schedulerStorage1.EnableSmartFetch = true;
+                schedulerStorage1.EnableSmartFetch = false;
             }
         }
         private void cbBoldAppointmentDates_CheckedChanged(object sender, EventArgs e) {
